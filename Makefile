@@ -1,4 +1,4 @@
-.PHONY: run
+.PHONY: create
 
-run:
-	go run cmd/hello.go
+create:
+	go run cmd/mergify.go create
