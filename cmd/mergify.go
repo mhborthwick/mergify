@@ -7,11 +7,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var CLI struct {
-	Create struct {
-	} `cmd:"" help:"Create a new playlist."`
-}
-
 var style = lipgloss.NewStyle().
 	Bold(true).
 	Foreground(lipgloss.Color("#FAFAFA")).
@@ -19,6 +14,11 @@ var style = lipgloss.NewStyle().
 	PaddingTop(2).
 	PaddingLeft(4).
 	Width(22)
+
+var CLI struct {
+	Create struct {
+	} `cmd:"" help:"Create a new playlist."`
+}
 
 func main() {
 	ctx := kong.Parse(&CLI)
