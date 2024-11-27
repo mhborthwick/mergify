@@ -1,8 +1,12 @@
 # DEVLOG
 
+## 11.27.24
+
+- Set up auth server.
+
 ## 11.19.24
 
-- Start to set up CLI
+- Start to set up CLI.
 
 ## 11.15.24
 
