@@ -2,6 +2,7 @@
 
 ## 11.27.24
 
+- Containerize auth server.
 - Set up auth server.
 
 ## 11.19.24

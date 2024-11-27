@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  mergify:
+    build:
+      context: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - $HOME/.mergify/config.json:/home/auth_user/.mergify/config.json
