@@ -1,4 +1,4 @@
-module github.com/mhborthwick/mergify/authserver
+module github.com/mhborthwick/mergify/auth
 
 go 1.23.3
 
