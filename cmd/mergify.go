@@ -21,9 +21,8 @@ var style = lipgloss.NewStyle().
 var cli CLI
 
 type CLI struct {
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-	Create       struct {
+	Token  string `json:"token"`
+	Create struct {
 	} `cmd:"" help:"Create a new playlist."`
 }
 
@@ -34,12 +33,9 @@ func ExitIfError(err error) {
 	}
 }
 
-func (cli *CLI) CheckClientCredentials() error {
-	if cli.ClientID == "" {
-		return errors.New("client_id is required")
-	}
-	if cli.ClientSecret == "" {
-		return errors.New("client_secret is required")
+func (cli *CLI) HasToken() error {
+	if cli.Token == "" {
+		return errors.New("token is required")
 	}
 	return nil
 }
@@ -51,13 +47,12 @@ func main() {
 	_, err = os.Stat(pathToConfig)
 	ExitIfError(err)
 	ctx := kong.Parse(&cli, kong.Configuration(kong.JSON, pathToConfig))
-	err = cli.CheckClientCredentials()
+	err = cli.HasToken()
 	ExitIfError(err)
 	switch ctx.Command() {
 	case "create":
 		fmt.Println(style.Render("Mergify!"))
-		fmt.Println(cli.ClientID)
-		fmt.Println(cli.ClientSecret)
+		fmt.Println(cli.Token)
 	default:
 		panic(ctx.Command())
 	}
