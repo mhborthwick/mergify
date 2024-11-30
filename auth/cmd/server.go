@@ -99,7 +99,7 @@ func ExitIfError(err error) {
 	}
 }
 
-func (cfg *ClientConfig) CheckClientCredentials() error {
+func (cfg *ClientConfig) HasClientCredentials() error {
 	if cfg.ClientID == "" {
 		return errors.New("client_id is required")
 	}
@@ -117,7 +117,7 @@ func main() {
 	ExitIfError(err)
 	content, _ := os.ReadFile(pathToConfig)
 	json.Unmarshal(content, &clientConfig)
-	err = clientConfig.CheckClientCredentials()
+	err = clientConfig.HasClientCredentials()
 	ExitIfError(err)
 	config = &oauth2.Config{
 		ClientID:     clientConfig.ClientID,
