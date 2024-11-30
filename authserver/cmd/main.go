@@ -90,7 +90,6 @@ func APIToken(w http.ResponseWriter, r *http.Request) {
 		"refresh_token": token.RefreshToken,
 	}
 	json.NewEncoder(w).Encode(tokenResponse)
-
 }
 
 func ExitIfError(err error) {
