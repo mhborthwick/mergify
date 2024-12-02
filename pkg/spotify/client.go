@@ -19,7 +19,7 @@ type Profile struct {
 
 const API = "https://api.spotify.com/v1"
 
-func (s *Spotify) PerformRequest(method, endpoint string, body io.Reader) ([]byte, error) {
+func (s *Spotify) handleRequest(method, endpoint string, body io.Reader) ([]byte, error) {
 	if s.Client == nil {
 		s.Client = &http.Client{}
 	}
@@ -44,8 +44,8 @@ func (s *Spotify) PerformRequest(method, endpoint string, body io.Reader) ([]byt
 	return respBody, nil
 }
 
-func (s *Spotify) GetProfile() (*Profile, error) {
-	body, err := s.PerformRequest("GET", "/me", nil)
+func (s *Spotify) getProfile() (*Profile, error) {
+	body, err := s.handleRequest("GET", "/me", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (s *Spotify) GetProfile() (*Profile, error) {
 }
 
 func (s *Spotify) GetUserID() (string, error) {
-	profile, err := s.GetProfile()
+	profile, err := s.getProfile()
 	if err != nil {
 		return "", err
 	}
