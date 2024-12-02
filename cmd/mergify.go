@@ -3,11 +3,13 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"path"
 
 	"github.com/alecthomas/kong"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mhborthwick/mergify/pkg/spotify"
 )
 
 var style = lipgloss.NewStyle().
@@ -52,7 +54,13 @@ func main() {
 	switch ctx.Command() {
 	case "create":
 		fmt.Println(style.Render("Mergify!"))
-		fmt.Println(cli.Token)
+		s := spotify.Spotify{}
+		s.Token = cli.Token
+		s.Client = &http.Client{}
+		userID, err := s.GetUserID()
+		ExitIfError(err)
+		s.UserID = userID
+		fmt.Printf("Spotify Struct: %+v\n", s)
 	default:
 		panic(ctx.Command())
 	}

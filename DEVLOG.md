@@ -1,5 +1,9 @@
 # DEVLOG
 
+## 12.01.24
+
+- Start to create spotify client.
+
 ## 11.27.24
 
 - Containerize auth server.
