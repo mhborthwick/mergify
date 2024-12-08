@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
 
 	"github.com/google/uuid"
 	"golang.org/x/oauth2"
@@ -20,13 +19,6 @@ var (
 	config *oauth2.Config
 	state  string
 )
-
-var clientConfig ClientConfig
-
-type ClientConfig struct {
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-}
 
 func GetRandomString() string {
 	return uuid.NewString()
@@ -99,29 +91,24 @@ func ExitIfError(err error) {
 	}
 }
 
-func (cfg *ClientConfig) HasClientCredentials() error {
-	if cfg.ClientID == "" {
+func HasClientCredentials(clientID, clientSecret string) error {
+	if clientID == "" {
 		return errors.New("client_id is required")
 	}
-	if cfg.ClientSecret == "" {
+	if clientSecret == "" {
 		return errors.New("client_secret is required")
 	}
 	return nil
 }
 
 func main() {
-	home, err := os.UserHomeDir()
-	ExitIfError(err)
-	pathToConfig := path.Join(home, ".mergify", "config.json")
-	_, err = os.Stat(pathToConfig)
-	ExitIfError(err)
-	content, _ := os.ReadFile(pathToConfig)
-	json.Unmarshal(content, &clientConfig)
-	err = clientConfig.HasClientCredentials()
+	clientID := os.Getenv("CLIENT_ID")
+	clientSecret := os.Getenv("CLIENT_SECRET")
+	err := HasClientCredentials(clientID, clientSecret)
 	ExitIfError(err)
 	config = &oauth2.Config{
-		ClientID:     clientConfig.ClientID,
-		ClientSecret: clientConfig.ClientSecret,
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
 		RedirectURL:  "http://localhost:3000/callback",
 		Endpoint:     spotify.Endpoint,
 		Scopes: []string{

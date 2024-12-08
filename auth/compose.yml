@@ -2,6 +2,8 @@ version: "3.9"
 
 services:
   mergify:
+    env_file:
+      - .env
     build:
       context: .
     ports:

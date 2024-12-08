@@ -1,5 +1,9 @@
 # DEVLOG
 
+## 12.07.24
+
+- Support using `.env` file for running auth server.
+
 ## 12.01.24
 
 - Start to create spotify client.
