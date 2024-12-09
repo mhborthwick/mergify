@@ -17,6 +17,15 @@ type Profile struct {
 	ID string `json:"id"`
 }
 
+type Playlist struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type PlaylistsResponse struct {
+	Items []Playlist `json:"items"`
+}
+
 const API = "https://api.spotify.com/v1"
 
 func (s *Spotify) handleRequest(method, endpoint string, body io.Reader) ([]byte, error) {
@@ -62,4 +71,40 @@ func (s *Spotify) GetUserID() (string, error) {
 		return "", err
 	}
 	return profile.ID, nil
+}
+
+func (s *Spotify) GetPlaylistIDsByName(userID string, cfgPlaylists []string) ([]string, error) {
+	playlists, err := s.GetPlaylists(userID)
+	if err != nil {
+		return nil, err
+	}
+	hashMap := make(map[string]string)
+	for _, playlist := range *playlists {
+		hashMap[playlist.Name] = playlist.ID
+	}
+	var result []string
+	for _, name := range cfgPlaylists {
+		if id, exists := hashMap[name]; exists {
+			result = append(result, id)
+		}
+	}
+	return result, nil
+}
+
+/*
+TODO: Spotify API constrains you to 100 playlists
+per request. Implement some kind of paginated playlists
+retrieval logic in case you have more than 100 playlists.
+*/
+func (s *Spotify) GetPlaylists(userID string) (*[]Playlist, error) {
+	endpoint := fmt.Sprintf("/users/%s/playlists", userID)
+	body, err := s.handleRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	var response PlaylistsResponse
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal profile: %w", err)
+	}
+	return &response.Items, nil
 }

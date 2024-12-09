@@ -23,8 +23,9 @@ var style = lipgloss.NewStyle().
 var cli CLI
 
 type CLI struct {
-	Token  string `json:"token"`
-	Create struct {
+	Token     string   `json:"token"`
+	Playlists []string `json:"playlists"`
+	Create    struct {
 	} `cmd:"" help:"Create a new playlist."`
 }
 
@@ -59,8 +60,9 @@ func main() {
 		s.Client = &http.Client{}
 		userID, err := s.GetUserID()
 		ExitIfError(err)
-		s.UserID = userID
-		fmt.Printf("Spotify Struct: %+v\n", s)
+		playlistIDs, err := s.GetPlaylistIDsByName(userID, cli.Playlists)
+		ExitIfError(err)
+		fmt.Println(playlistIDs)
 	default:
 		panic(ctx.Command())
 	}

@@ -1,5 +1,9 @@
 # DEVLOG
 
+## 12.08.24
+
+- Get IDs of playlists to merge.
+
 ## 12.07.24
 
 - Support using `.env` file for running auth server.
