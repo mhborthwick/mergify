@@ -9,3 +9,6 @@ TODO.md
 
 # env
 .env
+
+# temp folder for fixtures
+/temp
