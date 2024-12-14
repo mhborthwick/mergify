@@ -62,7 +62,10 @@ func main() {
 		ExitIfError(err)
 		playlistIDs, err := s.GetPlaylistIDsByName(userID, cli.Playlists)
 		ExitIfError(err)
-		fmt.Println(playlistIDs)
+		fmt.Println(playlistIDs[0])
+		trackIDs, err := s.GetPlaylistTrackIDs(playlistIDs)
+		ExitIfError(err)
+		fmt.Println(trackIDs)
 	default:
 		panic(ctx.Command())
 	}

@@ -1,5 +1,9 @@
 # DEVLOG
 
+## 12.13.24
+
+- Get track IDs of playlists.
+
 ## 12.08.24
 
 - Get IDs of playlists to merge.

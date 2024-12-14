@@ -26,6 +26,18 @@ type PlaylistsResponse struct {
 	Items []Playlist `json:"items"`
 }
 
+type Track struct {
+	ID string `json:"id"`
+}
+
+type PlaylistTrack struct {
+	Track Track `json:"track"`
+}
+
+type PlaylistItemsResponse struct {
+	Items []PlaylistTrack `json:"items"`
+}
+
 const API = "https://api.spotify.com/v1"
 
 func (s *Spotify) handleRequest(method, endpoint string, body io.Reader) ([]byte, error) {
@@ -79,7 +91,7 @@ func (s *Spotify) GetPlaylistIDsByName(userID string, cfgPlaylists []string) ([]
 		return nil, err
 	}
 	hashMap := make(map[string]string)
-	for _, playlist := range *playlists {
+	for _, playlist := range playlists {
 		hashMap[playlist.Name] = playlist.ID
 	}
 	var result []string
@@ -96,7 +108,7 @@ TODO: Spotify API constrains you to 100 playlists
 per request. Implement some kind of paginated playlists
 retrieval logic in case you have more than 100 playlists.
 */
-func (s *Spotify) GetPlaylists(userID string) (*[]Playlist, error) {
+func (s *Spotify) GetPlaylists(userID string) ([]Playlist, error) {
 	endpoint := fmt.Sprintf("/users/%s/playlists", userID)
 	body, err := s.handleRequest("GET", endpoint, nil)
 	if err != nil {
@@ -106,5 +118,40 @@ func (s *Spotify) GetPlaylists(userID string) (*[]Playlist, error) {
 	if err := json.Unmarshal(body, &response); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal profile: %w", err)
 	}
-	return &response.Items, nil
+	return response.Items, nil
+}
+
+/*
+TODO: Handle duplicate IDs.
+*/
+func (s *Spotify) GetPlaylistTrackIDs(playlistIDs []string) ([]string, error) {
+	var result []string
+	for _, id := range playlistIDs {
+		playlistTracks, err := s.GetTracksFromPlaylist(id)
+		if err != nil {
+			return nil, err
+		}
+		for _, p := range playlistTracks {
+			result = append(result, p.Track.ID)
+		}
+	}
+	return result, nil
+}
+
+/*
+TODO: Spotify API constrains you to 20 tracks
+per request. Implement some kind of paginated track
+retrieval logic in case you have more than 20 tracks.
+*/
+func (s *Spotify) GetTracksFromPlaylist(playlistID string) ([]PlaylistTrack, error) {
+	endpoint := fmt.Sprintf("/playlists/%s/tracks", playlistID)
+	body, err := s.handleRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	var response PlaylistItemsResponse
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal profile: %w", err)
+	}
+	return response.Items, nil
 }
