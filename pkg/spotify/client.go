@@ -43,6 +43,10 @@ type AddTracksToPlaylistResponse struct {
 	SnapshotID string `json:"snapshot_id"`
 }
 
+type CreatePlaylistResponse struct {
+	ID string `json:"id"`
+}
+
 const API = "https://api.spotify.com/v1"
 
 func (s *Spotify) handleRequest(method, endpoint string, body io.Reader) ([]byte, error) {
@@ -165,11 +169,32 @@ func (s *Spotify) GetTracksFromPlaylist(playlistID string) ([]PlaylistTrack, err
 }
 
 /*
+TODO: Create only if trackURIs length > 0
+TODO: Change 'name' in payload
+*/
+func (s *Spotify) CreatePlaylist(userID string) (string, error) {
+	requestBody := map[string]string{"name": "Mergify Playlist"}
+	jsonRequestBody, err := json.Marshal(requestBody)
+	if err != nil {
+		return "", err
+	}
+	endpoint := fmt.Sprintf("/users/%s/playlists", userID)
+	body, err := s.handleRequest("POST", endpoint, bytes.NewBuffer(jsonRequestBody))
+	if err != nil {
+		return "", err
+	}
+	var response CreatePlaylistResponse
+	if err := json.Unmarshal(body, &response); err != nil {
+		return "", fmt.Errorf("failed to unmarshal profile: %w", err)
+	}
+	return response.ID, nil
+}
+
+/*
 TODO: Spotify API constrains you to 100 URIs
 per request. Send tracks in batches of 100.
 */
 func (s *Spotify) AddTracksToPlaylist(playlistID string, trackIDs []string) (string, error) {
-	fmt.Println(len(trackIDs))
 	requestBody := map[string][]string{"uris": trackIDs}
 	jsonRequestBody, err := json.Marshal(requestBody)
 	if err != nil {

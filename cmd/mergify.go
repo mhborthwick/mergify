@@ -62,11 +62,11 @@ func main() {
 		ExitIfError(err)
 		playlistIDs, err := s.GetPlaylistIDsByName(userID, cli.Playlists)
 		ExitIfError(err)
-		fmt.Println(playlistIDs[0])
 		trackIDs, err := s.GetPlaylistTrackIDs(playlistIDs)
 		ExitIfError(err)
-		// TODO: create playlist before adding tracks
-		temp, err := s.AddTracksToPlaylist("2Ddn9K9IIWKokkObL7bM6X", trackIDs)
+		playlistID, err := s.CreatePlaylist(userID)
+		ExitIfError(err)
+		temp, err := s.AddTracksToPlaylist(playlistID, trackIDs)
 		fmt.Println(temp)
 		ExitIfError(err)
 	default:

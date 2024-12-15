@@ -2,6 +2,7 @@
 
 ## 12.14.24
 
+- Create playlist.
 - Add tracks to playlist.
 
 ## 12.13.24
