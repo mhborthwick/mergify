@@ -1,5 +1,9 @@
 # DEVLOG
 
+## 12.14.24
+
+- Add tracks to playlist.
+
 ## 12.13.24
 
 - Get track IDs of playlists.

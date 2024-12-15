@@ -1,6 +1,7 @@
 package spotify
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -27,7 +28,7 @@ type PlaylistsResponse struct {
 }
 
 type Track struct {
-	ID string `json:"id"`
+	URI string `json:"uri"`
 }
 
 type PlaylistTrack struct {
@@ -36,6 +37,10 @@ type PlaylistTrack struct {
 
 type PlaylistItemsResponse struct {
 	Items []PlaylistTrack `json:"items"`
+}
+
+type AddTracksToPlaylistResponse struct {
+	SnapshotID string `json:"snapshot_id"`
 }
 
 const API = "https://api.spotify.com/v1"
@@ -55,7 +60,10 @@ func (s *Spotify) handleRequest(method, endpoint string, body io.Reader) ([]byte
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
+	if method == "GET" && resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("request failed with status code %d", resp.StatusCode)
+	}
+	if method == "POST" && resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("request failed with status code %d", resp.StatusCode)
 	}
 	respBody, err := io.ReadAll(resp.Body)
@@ -132,7 +140,7 @@ func (s *Spotify) GetPlaylistTrackIDs(playlistIDs []string) ([]string, error) {
 			return nil, err
 		}
 		for _, p := range playlistTracks {
-			result = append(result, p.Track.ID)
+			result = append(result, p.Track.URI)
 		}
 	}
 	return result, nil
@@ -154,4 +162,27 @@ func (s *Spotify) GetTracksFromPlaylist(playlistID string) ([]PlaylistTrack, err
 		return nil, fmt.Errorf("failed to unmarshal profile: %w", err)
 	}
 	return response.Items, nil
+}
+
+/*
+TODO: Spotify API constrains you to 100 URIs
+per request. Send tracks in batches of 100.
+*/
+func (s *Spotify) AddTracksToPlaylist(playlistID string, trackIDs []string) (string, error) {
+	fmt.Println(len(trackIDs))
+	requestBody := map[string][]string{"uris": trackIDs}
+	jsonRequestBody, err := json.Marshal(requestBody)
+	if err != nil {
+		return "", err
+	}
+	endpoint := fmt.Sprintf("/playlists/%s/tracks", playlistID)
+	body, err := s.handleRequest("POST", endpoint, bytes.NewBuffer(jsonRequestBody))
+	if err != nil {
+		return "", err
+	}
+	var response AddTracksToPlaylistResponse
+	if err := json.Unmarshal(body, &response); err != nil {
+		return "", fmt.Errorf("failed to unmarshal profile: %w", err)
+	}
+	return response.SnapshotID, nil
 }

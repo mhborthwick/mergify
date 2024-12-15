@@ -65,7 +65,10 @@ func main() {
 		fmt.Println(playlistIDs[0])
 		trackIDs, err := s.GetPlaylistTrackIDs(playlistIDs)
 		ExitIfError(err)
-		fmt.Println(trackIDs)
+		// TODO: create playlist before adding tracks
+		temp, err := s.AddTracksToPlaylist("2Ddn9K9IIWKokkObL7bM6X", trackIDs)
+		fmt.Println(temp)
+		ExitIfError(err)
 	default:
 		panic(ctx.Command())
 	}
