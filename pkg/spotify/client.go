@@ -97,8 +97,30 @@ func (s *Spotify) GetUserID() (string, error) {
 	return profile.ID, nil
 }
 
+/*
+TODO: Spotify API constrains you to 20 playlists
+per request. Implement some kind of paginated playlists
+retrieval logic in case you have more than 20 playlists.
+*/
+func (s *Spotify) getPlaylists(userID string) ([]Playlist, error) {
+	endpoint := fmt.Sprintf("/users/%s/playlists", userID)
+	body, err := s.handleRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	var response PlaylistsResponse
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal profile: %w", err)
+	}
+	return response.Items, nil
+}
+
+/*
+GetPlaylistIDsByName retrieves the IDs corresponding
+to the playlists provided in the user's mergify config.
+*/
 func (s *Spotify) GetPlaylistIDsByName(userID string, cfgPlaylists []string) ([]string, error) {
-	playlists, err := s.GetPlaylists(userID)
+	playlists, err := s.getPlaylists(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -113,24 +135,6 @@ func (s *Spotify) GetPlaylistIDsByName(userID string, cfgPlaylists []string) ([]
 		}
 	}
 	return result, nil
-}
-
-/*
-TODO: Spotify API constrains you to 100 playlists
-per request. Implement some kind of paginated playlists
-retrieval logic in case you have more than 100 playlists.
-*/
-func (s *Spotify) GetPlaylists(userID string) ([]Playlist, error) {
-	endpoint := fmt.Sprintf("/users/%s/playlists", userID)
-	body, err := s.handleRequest("GET", endpoint, nil)
-	if err != nil {
-		return nil, err
-	}
-	var response PlaylistsResponse
-	if err := json.Unmarshal(body, &response); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal profile: %w", err)
-	}
-	return response.Items, nil
 }
 
 /*
