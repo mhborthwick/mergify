@@ -1,4 +1,4 @@
-.PHONY: auth-build auth-up auth-down create build install
+.PHONY: auth-build auth-up auth-down create build install test
 
 auth-build:
 	make -C auth build
@@ -18,3 +18,5 @@ build:
 install:
 	go install ./cmd/mergify.go
 
+test:
+	go test -cover ./pkg/...

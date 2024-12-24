@@ -1,5 +1,9 @@
 # DEVLOG
 
+## 12.24.24
+
+- Add tests for GetUserID
+
 ## 12.14.24
 
 - Create playlist.
