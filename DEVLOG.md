@@ -1,5 +1,9 @@
 # DEVLOG
 
+## 01.20.24
+
+- Update getPlaylists to be able to retrieve playlists in multiple cycles
+
 ## 12.24.24
 
 - Add tests for GetUserID

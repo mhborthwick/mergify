@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type Spotify struct {
@@ -25,6 +26,7 @@ type Playlist struct {
 
 type PlaylistsResponse struct {
 	Items []Playlist `json:"items"`
+	Next  *string    `json:"next"`
 }
 
 type Track struct {
@@ -98,21 +100,29 @@ func (s *Spotify) GetUserID() (string, error) {
 }
 
 /*
-TODO: Spotify API constrains you to 20 playlists
-per request. Implement some kind of paginated playlists
-retrieval logic in case you have more than 20 playlists.
+Spotify imposes a 20 playlists per request constraint, so we need
+to add logic to be able to retrieve playlists in multiple cycles.
 */
 func (s *Spotify) getPlaylists(userID string) ([]Playlist, error) {
+	var allPlaylists []Playlist
 	endpoint := fmt.Sprintf("/users/%s/playlists", userID)
-	body, err := s.handleRequest("GET", endpoint, nil)
-	if err != nil {
-		return nil, err
+	for {
+		body, err := s.handleRequest("GET", endpoint, nil)
+		if err != nil {
+			return nil, err
+		}
+		var response PlaylistsResponse
+		if err := json.Unmarshal(body, &response); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal playlists: %w", err)
+		}
+		allPlaylists = append(allPlaylists, response.Items...)
+		if response.Next == nil {
+			break
+		}
+		_, after, _ := strings.Cut(*response.Next, API)
+		endpoint = after
 	}
-	var response PlaylistsResponse
-	if err := json.Unmarshal(body, &response); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal profile: %w", err)
-	}
-	return response.Items, nil
+	return allPlaylists, nil
 }
 
 /*
