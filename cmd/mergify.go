@@ -66,7 +66,7 @@ func main() {
 		ExitIfError(err)
 		playlistID, err := s.CreatePlaylist(userID)
 		ExitIfError(err)
-		temp, err := s.AddTracksToPlaylist(playlistID, trackIDs)
+		temp, err := s.AddTracksToPlaylist(playlistID, trackIDs, 100)
 		fmt.Println(temp)
 		ExitIfError(err)
 	default:

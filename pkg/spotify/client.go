@@ -204,24 +204,42 @@ func (s *Spotify) CreatePlaylist(userID string) (string, error) {
 	return response.ID, nil
 }
 
-/*
-TODO: Spotify API constrains you to 100 URIs
-per request. Send tracks in batches of 100.
-*/
-func (s *Spotify) AddTracksToPlaylist(playlistID string, trackIDs []string) (string, error) {
-	requestBody := map[string][]string{"uris": trackIDs}
-	jsonRequestBody, err := json.Marshal(requestBody)
-	if err != nil {
-		return "", err
+func (s *Spotify) AddTracksToPlaylist(
+	playlistID string,
+	trackIDs []string,
+	batchSize int,
+) (string, error) {
+	// Spotify limits you to max 100 URIs per request
+	// so we need to be able to send tracks in batches.
+	chunks := func(trackIDs []string, size int) [][]string {
+		var result [][]string
+		for i := 0; i < len(trackIDs); i += size {
+			end := i + size
+			if end > len(trackIDs) {
+				end = len(trackIDs)
+			}
+			result = append(result, trackIDs[i:end])
+		}
+		return result
 	}
-	endpoint := fmt.Sprintf("/playlists/%s/tracks", playlistID)
-	body, err := s.handleRequest("POST", endpoint, bytes.NewBuffer(jsonRequestBody))
-	if err != nil {
-		return "", err
+	batches := chunks(trackIDs, batchSize)
+	var lastSnapshotID string
+	for _, batch := range batches {
+		requestBody := map[string][]string{"uris": batch}
+		jsonRequestBody, err := json.Marshal(requestBody)
+		if err != nil {
+			return "", err
+		}
+		endpoint := fmt.Sprintf("/playlists/%s/tracks", playlistID)
+		body, err := s.handleRequest("POST", endpoint, bytes.NewBuffer(jsonRequestBody))
+		if err != nil {
+			return "", fmt.Errorf("failed to add tracks to playlist: %w", err)
+		}
+		var response AddTracksToPlaylistResponse
+		if err := json.Unmarshal(body, &response); err != nil {
+			return "", fmt.Errorf("failed to unmarshal response: %w", err)
+		}
+		lastSnapshotID = response.SnapshotID
 	}
-	var response AddTracksToPlaylistResponse
-	if err := json.Unmarshal(body, &response); err != nil {
-		return "", fmt.Errorf("failed to unmarshal profile: %w", err)
-	}
-	return response.SnapshotID, nil
+	return lastSnapshotID, nil
 }

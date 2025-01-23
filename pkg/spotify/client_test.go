@@ -1,6 +1,7 @@
 package spotify
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
@@ -93,5 +94,42 @@ func TestGetPlaylists(t *testing.T) {
 			{ID: "789", Name: "baz"},
 		}
 		assert.Equal(t, expected, playlists, "unexpected playlists")
+	})
+}
+
+func TestAddTracksToPlaylist_Batching(t *testing.T) {
+	t.Run("tracks are batched correctly", func(t *testing.T) {
+		var requests []map[string][]string
+		mockClient := &http.Client{
+			Transport: &mockRoundTripper{
+				roundTripFunc: func(req *http.Request) (*http.Response, error) {
+					var body map[string][]string
+					if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
+						t.Fatalf("failed to decode request body: %v", err)
+					}
+					requests = append(requests, body)
+					mockResponse := `{"snapshot_id": "mockSnapshot123"}`
+					return &http.Response{
+						StatusCode: http.StatusCreated,
+						Body:       io.NopCloser(strings.NewReader(mockResponse)),
+					}, nil
+				},
+			},
+		}
+		s := Spotify{
+			Client: mockClient,
+			Token:  "mockToken",
+		}
+		trackIDs := []string{"track1", "track2", "track3", "track4", "track5"}
+		batchSize := 2
+		response, _ := s.AddTracksToPlaylist("mockPlaylistID", trackIDs, batchSize)
+		assert.Equal(t, "mockSnapshot123", response)
+		assert.Equal(t, 3, len(requests), "unexpected number of batches")
+		expectedBatches := []map[string][]string{
+			{"uris": {"track1", "track2"}},
+			{"uris": {"track3", "track4"}},
+			{"uris": {"track5"}},
+		}
+		assert.Equal(t, expectedBatches, requests, "unexpected batch content")
 	})
 }
