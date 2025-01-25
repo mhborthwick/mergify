@@ -99,13 +99,13 @@ func (s *Spotify) GetUserID() (string, error) {
 	return profile.ID, nil
 }
 
-/*
-Spotify imposes a 20 playlists per request constraint, so we need
-to add logic to be able to retrieve playlists in multiple cycles.
-*/
 func (s *Spotify) getPlaylists(userID string) ([]Playlist, error) {
 	var allPlaylists []Playlist
 	endpoint := fmt.Sprintf("/users/%s/playlists", userID)
+	/*
+		Spotify imposes a 20 playlists per request constraint, so we need
+		to add logic to be able to retrieve playlists in multiple cycles.
+	*/
 	for {
 		body, err := s.handleRequest("GET", endpoint, nil)
 		if err != nil {
