@@ -128,7 +128,7 @@ func (s *Spotify) getPlaylists(userID string) ([]Playlist, error) {
 
 /*
 GetPlaylistIDsByName retrieves the IDs corresponding
-to the playlists provided in the user's mergify config.
+to the playlists provided in the user's ~/.mergify/config.json file.
 */
 func (s *Spotify) GetPlaylistIDsByName(userID string, cfgPlaylists []string) ([]string, error) {
 	playlists, err := s.getPlaylists(userID)
