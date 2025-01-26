@@ -193,10 +193,16 @@ func (s *Spotify) getTracksFromPlaylist(playlistID string) ([]PlaylistTrack, err
 }
 
 /*
-TODO: Create only if trackURIs length > 0
 TODO: Change 'name' in payload
 */
-func (s *Spotify) CreatePlaylist(userID string) (string, error) {
+func (s *Spotify) CreatePlaylist(userID string, trackIDs []string) (string, error) {
+	if len(trackIDs) == 0 {
+		/*
+			Exit if no tracks found in playlists
+			provided in user's ~/.mergify/config.json file.
+		*/
+		return "", fmt.Errorf("no tracks found")
+	}
 	requestBody := map[string]string{"name": "Mergify Playlist"}
 	jsonRequestBody, err := json.Marshal(requestBody)
 	if err != nil {
