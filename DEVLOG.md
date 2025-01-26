@@ -2,6 +2,7 @@
 
 ## 01.25.25
 
+- Omit duplicate track IDs when creating payload for new playlist
 - Update getTracksFromPlaylist to retrieve tracks in multiple cycles
 
 ## 01.23.25

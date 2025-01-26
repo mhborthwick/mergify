@@ -148,21 +148,27 @@ func (s *Spotify) GetPlaylistIDsByName(userID string, cfgPlaylists []string) ([]
 	return result, nil
 }
 
-/*
-TODO: Handle duplicate IDs.
-*/
 func (s *Spotify) GetPlaylistTrackIDs(playlistIDs []string) ([]string, error) {
-	var result []string
+	var trackURIs []string
+	hashMap := make(map[string]bool)
 	for _, id := range playlistIDs {
 		playlistTracks, err := s.getTracksFromPlaylist(id)
 		if err != nil {
 			return nil, err
 		}
+		/*
+			Omits duplicate Track IDs
+			to prevent the created playlist
+			from having duplicate tracks.
+		*/
 		for _, p := range playlistTracks {
-			result = append(result, p.Track.URI)
+			if !hashMap[p.Track.URI] {
+				trackURIs = append(trackURIs, p.Track.URI)
+				hashMap[p.Track.URI] = true
+			}
 		}
 	}
-	return result, nil
+	return trackURIs, nil
 }
 
 func (s *Spotify) getTracksFromPlaylist(playlistID string) ([]PlaylistTrack, error) {

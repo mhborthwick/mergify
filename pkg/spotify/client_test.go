@@ -215,3 +215,28 @@ func TestAddTracksToPlaylist(t *testing.T) {
 		assert.Equal(t, expectedBatches, requests, "unexpected batch content")
 	})
 }
+
+func Test_GetPlaylistTracksIDs(t *testing.T) {
+	t.Run("omits duplicate tracks", func(t *testing.T) {
+		t.Run("happy path", func(t *testing.T) {
+			mockClient := &http.Client{
+				Transport: &mockRoundTripper{
+					roundTripFunc: func(req *http.Request) (*http.Response, error) {
+						return &http.Response{
+							StatusCode: http.StatusOK,
+							Body:       io.NopCloser(strings.NewReader(`{"items": [{"track": {"uri": "123"}}, {"track": {"uri": "456"}}, {"track": {"uri": "456"}}], "next": null}`)),
+						}, nil
+					},
+				},
+			}
+			s := Spotify{
+				Client: mockClient,
+				Token:  "mockToken",
+			}
+			tracks, err := s.GetPlaylistTrackIDs([]string{"playListId1", "playListId2"})
+			expected := []string{"123", "456"}
+			assert.NoError(t, err, "failed to unmarshal response")
+			assert.Equal(t, expected, tracks, "unexpected tracks returned")
+		})
+	})
+}
