@@ -65,7 +65,7 @@ func TestGetPlaylists(t *testing.T) {
 		assert.Equal(t, expected, playlists, "unexpected playlists returned")
 	})
 
-	t.Run("pagination path", func(t *testing.T) {
+	t.Run("pagination", func(t *testing.T) {
 		mockClient := &http.Client{
 			Transport: &mockRoundTripper{
 				roundTripFunc: func(req *http.Request) (*http.Response, error) {
@@ -97,7 +97,89 @@ func TestGetPlaylists(t *testing.T) {
 	})
 }
 
-func TestAddTracksToPlaylist_Batching(t *testing.T) {
+func TestGetTracksFromPlaylist(t *testing.T) {
+	t.Run("happy path", func(t *testing.T) {
+		mockClient := &http.Client{
+			Transport: &mockRoundTripper{
+				roundTripFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{"items": [{"track": {"uri": "123"}}, {"track": {"uri": "456"}}], "next": null}`)),
+					}, nil
+				},
+			},
+		}
+		s := Spotify{
+			Client: mockClient,
+			Token:  "mockToken",
+		}
+		tracks, err := s.getTracksFromPlaylist("mockPlaylistID")
+		expected := []PlaylistTrack{
+			{
+				Track: Track{
+					URI: "123",
+				},
+			},
+			{
+				Track: Track{
+					URI: "456",
+				},
+			},
+		}
+		assert.NoError(t, err, "failed to unmarshal response")
+		assert.Equal(t, expected, tracks, "unexpected tracks returned")
+	})
+
+	t.Run("pagination", func(t *testing.T) {
+		mockClient := &http.Client{
+			Transport: &mockRoundTripper{
+				roundTripFunc: func(req *http.Request) (*http.Response, error) {
+					if req.URL.String() == "https://api.spotify.com/v1/playlists/mockPlaylistID/tracks" {
+						return &http.Response{
+							StatusCode: http.StatusOK,
+							Body:       io.NopCloser(strings.NewReader(`{"items": [{"track": {"uri": "123"}}, {"track": {"uri": "456"}}], "next": "https://api.spotify.com/v1/users/user/playlists?offset=20"}`)),
+						}, nil
+					}
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{"items": [{"track": {"uri": "111"}}, {"track": {"uri": "222"}}], "next": null}`)),
+					}, nil
+				},
+			},
+		}
+		s := Spotify{
+			Client: mockClient,
+			Token:  "mockToken",
+		}
+		tracks, err := s.getTracksFromPlaylist("mockPlaylistID")
+		expected := []PlaylistTrack{
+			{
+				Track: Track{
+					URI: "123",
+				},
+			},
+			{
+				Track: Track{
+					URI: "456",
+				},
+			},
+			{
+				Track: Track{
+					URI: "111",
+				},
+			},
+			{
+				Track: Track{
+					URI: "222",
+				},
+			},
+		}
+		assert.NoError(t, err, "failed to unmarshal response")
+		assert.Equal(t, expected, tracks, "unexpected tracks returned")
+	})
+}
+
+func TestAddTracksToPlaylist(t *testing.T) {
 	t.Run("tracks are batched correctly", func(t *testing.T) {
 		var requests []map[string][]string
 		mockClient := &http.Client{

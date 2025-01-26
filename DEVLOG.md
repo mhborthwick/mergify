@@ -1,10 +1,14 @@
 # DEVLOG
 
-## 01.23.24
+## 01.25.25
+
+- Update getTracksFromPlaylist to retrieve tracks in multiple cycles
+
+## 01.23.25
 
 - Update AddTracksToPlaylist to be able to send tracks in batches
 
-## 01.20.24
+## 01.20.25
 
 - Update getPlaylists to be able to retrieve playlists in multiple cycles
 

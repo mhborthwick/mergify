@@ -39,6 +39,7 @@ type PlaylistTrack struct {
 
 type PlaylistItemsResponse struct {
 	Items []PlaylistTrack `json:"items"`
+	Next  *string         `json:"next"`
 }
 
 type AddTracksToPlaylistResponse struct {
@@ -153,7 +154,7 @@ TODO: Handle duplicate IDs.
 func (s *Spotify) GetPlaylistTrackIDs(playlistIDs []string) ([]string, error) {
 	var result []string
 	for _, id := range playlistIDs {
-		playlistTracks, err := s.GetTracksFromPlaylist(id)
+		playlistTracks, err := s.getTracksFromPlaylist(id)
 		if err != nil {
 			return nil, err
 		}
@@ -164,22 +165,31 @@ func (s *Spotify) GetPlaylistTrackIDs(playlistIDs []string) ([]string, error) {
 	return result, nil
 }
 
-/*
-TODO: Spotify API constrains you to 20 tracks
-per request. Implement some kind of paginated track
-retrieval logic in case you have more than 20 tracks.
-*/
-func (s *Spotify) GetTracksFromPlaylist(playlistID string) ([]PlaylistTrack, error) {
+func (s *Spotify) getTracksFromPlaylist(playlistID string) ([]PlaylistTrack, error) {
+	var allPlaylistTracks []PlaylistTrack
 	endpoint := fmt.Sprintf("/playlists/%s/tracks", playlistID)
-	body, err := s.handleRequest("GET", endpoint, nil)
-	if err != nil {
-		return nil, err
+	/*
+		Spotify defaults to returning 20 tracks
+		per request, so we need to implement track retrieval mechanism
+		that can handle playlists with more than 20 tracks.
+	*/
+	for {
+		body, err := s.handleRequest("GET", endpoint, nil)
+		if err != nil {
+			return nil, err
+		}
+		var response PlaylistItemsResponse
+		if err := json.Unmarshal(body, &response); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+		}
+		allPlaylistTracks = append(allPlaylistTracks, response.Items...)
+		if response.Next == nil {
+			break
+		}
+		_, after, _ := strings.Cut(*response.Next, API)
+		endpoint = after
 	}
-	var response PlaylistItemsResponse
-	if err := json.Unmarshal(body, &response); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal profile: %w", err)
-	}
-	return response.Items, nil
+	return allPlaylistTracks, nil
 }
 
 /*
