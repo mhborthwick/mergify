@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Spotify struct {
@@ -198,9 +199,6 @@ func (s *Spotify) getTracksFromPlaylist(playlistID string) ([]PlaylistTrack, err
 	return allPlaylistTracks, nil
 }
 
-/*
-TODO: Change 'name' in payload
-*/
 func (s *Spotify) CreatePlaylist(userID string, trackIDs []string) (string, error) {
 	if len(trackIDs) == 0 {
 		/*
@@ -209,7 +207,13 @@ func (s *Spotify) CreatePlaylist(userID string, trackIDs []string) (string, erro
 		*/
 		return "", fmt.Errorf("no tracks found")
 	}
-	requestBody := map[string]string{"name": "Mergify Playlist"}
+	now := time.Now()
+	millis := now.UnixNano() / 1e6
+	name := fmt.Sprintf("Mergify Playlist %d", millis)
+	requestBody := map[string]string{
+		"name":        name,
+		"description": "Created with https://github.com/mhborthwick/mergify",
+	}
 	jsonRequestBody, err := json.Marshal(requestBody)
 	if err != nil {
 		return "", err
