@@ -25,7 +25,7 @@ func GetRandomString() string {
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "<a href='/login'>Click to Login</a>")
+	fmt.Fprint(w, "<a href='/login'>Login to Spotify</a>")
 }
 
 func Authorize(w http.ResponseWriter, r *http.Request) {
