@@ -8,7 +8,7 @@ Mergify is a CLI (command-line interface) that allows you to merge your Spotify 
 
 | Name                           | User              | Description                                     | Link                                                                                            |
 | ------------------------------ | ----------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Mike's Monthly Playlists (All) | Mike H. Borthwick | A compilation of Mike's 100+ Monthly Playlists. | [Open on Spotify](https://open.spotify.com/playlist/70uxSG71AXTg0yHaeCd5AJ?si=37804c54156e404b) |
+| Mike's Monthly Playlists (All) | Mike H. Borthwick | A compilation of Mike's 100+ Monthly Playlists. | [Open on Spotify](https://open.spotify.com/playlist/4ID9qCTCaBebwOkMFgFd1o?si=e7e04f8a7a4344ba) |
 
 ## Requirements
 
