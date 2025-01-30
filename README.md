@@ -85,7 +85,7 @@ The auth server runs at `http://localhost:3000`.
 
 1. You’ll be redirected to a page displaying your access token.
 
-1. Click `Copy Access Token` to save it to your clipboard (You'll use this in `Step 2: Set Up Your Mergify Config File` below).
+1. Click `Copy Access Token` to save it to your clipboard (You'll use this in **Step 2: Set Up Your Mergify Config File** below).
 
 > Note: Your token expires after ~30 minutes. Revisit `http://localhost:3000` to regenerate it if needed.
 
@@ -103,7 +103,7 @@ $ touch ~/.mergify/config.json
 
 Define the playlists that you want to merge as an array:
 
-```json
+```jsonc
 {
   "playlists": [
     "Playlist 1",
@@ -122,7 +122,7 @@ Define the playlists that you want to merge as an array:
 
 Copy your access token and set it as the value of `"token"` in your `~/.mergify/config.json` file:
 
-```json
+```jsonc
 {
   "token": "<replace_with_your_token>",
   "playlists": [
