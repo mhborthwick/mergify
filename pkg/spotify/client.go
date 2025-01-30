@@ -88,7 +88,7 @@ func (s *Spotify) getProfile() (*Profile, error) {
 	}
 	var profile Profile
 	if err := json.Unmarshal(body, &profile); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal profile: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 	return &profile, nil
 }
@@ -225,7 +225,7 @@ func (s *Spotify) CreatePlaylist(userID string, trackIDs []string) (string, erro
 	}
 	var response CreatePlaylistResponse
 	if err := json.Unmarshal(body, &response); err != nil {
-		return "", fmt.Errorf("failed to unmarshal profile: %w", err)
+		return "", fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 	return response.ID, nil
 }
