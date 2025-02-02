@@ -19,8 +19,11 @@ jobs:
         with:
           go-version: "1.23"
 
-      - name: Build binary (MacOS)
+      - name: Build binary (MacOS amd64)
         run: GOOS=darwin GOARCH=amd64 go build -o bin/mergify-darwin-amd64 ./cmd
+
+      - name: Build binary (MacOS arm64)
+        run: GOOS=darwin GOARCH=arm64 go build -o bin/mergify-darwin-arm64 ./cmd
 
       - name: Build binary (Linux)
         run: GOOS=linux GOARCH=amd64 go build -o bin/mergify-linux-amd64 ./cmd
@@ -28,8 +31,11 @@ jobs:
       - name: Build binary (Windows)
         run: GOOS=windows GOARCH=amd64 go build -o bin/mergify-windows-amd64.exe ./cmd
 
-      - name: Compress binary (MacOS)
+      - name: Compress binary (MacOS amd64)
         run: tar -czvf bin/mergify-darwin-amd64.tar.gz bin/mergify-darwin-amd64
+
+      - name: Compress binary (MacOS arm64)
+        run: tar -czvf bin/mergify-darwin-arm64.tar.gz bin/mergify-darwin-arm64
 
       - name: Compress binary (Linux)
         run: tar -czvf bin/mergify-linux-amd64.tar.gz bin/mergify-linux-amd64
@@ -42,6 +48,7 @@ jobs:
         with:
           artifacts: |
             bin/mergify-darwin-amd64.tar.gz
+            bin/mergify-darwin-arm64.tar.gz
             bin/mergify-linux-amd64.tar.gz
             bin/mergify-windows-amd64.zip
           token: ${{ secrets.GITHUB_TOKEN }}
