@@ -25,8 +25,6 @@ export ARCH="darwin-arm64"
 
 # export ARCH="linux-amd64"
 
-# export ARCH="windows-amd64"
-
 curl -o mergify -L "https://github.com/mhborthwick/mergify/releases/latest/download/mergify-${ARCH}"
 
 chmod +x mergify

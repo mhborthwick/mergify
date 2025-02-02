@@ -29,9 +29,6 @@ jobs:
       - name: Build binary (Linux)
         run: GOOS=linux GOARCH=amd64 go build -o mergify-linux-amd64 cmd/mergify.go
 
-      - name: Build binary (Windows)
-        run: GOOS=windows GOARCH=amd64 go build -o mergify-windows-amd64.exe cmd/mergify.go
-
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
@@ -39,7 +36,6 @@ jobs:
             mergify-darwin-amd64
             mergify-darwin-arm64
             mergify-linux-amd64
-            mergify-windows-amd64.exe
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
