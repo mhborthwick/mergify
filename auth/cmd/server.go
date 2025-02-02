@@ -14,37 +14,35 @@ import (
 	"golang.org/x/oauth2/spotify"
 )
 
-var (
+type AuthServer struct {
+	AccessToken string
+	// RefreshToken string
 	source oauth2.TokenSource
 	config *oauth2.Config
 	state  string
-)
-
-func GetRandomString() string {
-	return uuid.NewString()
 }
 
-func Index(w http.ResponseWriter, r *http.Request) {
+func (server *AuthServer) Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "<a href='/login'>Login to Spotify</a>")
 }
 
-func Authorize(w http.ResponseWriter, r *http.Request) {
-	state = GetRandomString()
-	http.Redirect(w, r, config.AuthCodeURL(state), http.StatusSeeOther)
+func (server *AuthServer) Authorize(w http.ResponseWriter, r *http.Request) {
+	server.state = GetRandomString()
+	http.Redirect(w, r, server.config.AuthCodeURL(server.state), http.StatusSeeOther)
 }
 
-func Callback(w http.ResponseWriter, r *http.Request) {
+func (server *AuthServer) Callback(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 	if code == "" {
 		fmt.Println("Unauthorized")
 		return
 	}
-	token, err := config.Exchange(r.Context(), code)
+	token, err := server.config.Exchange(r.Context(), code)
 	if err != nil {
 		fmt.Println("Unauthorized")
 		return
 	}
-	source = config.TokenSource(context.Background(), token)
+	server.source = server.config.TokenSource(context.Background(), token)
 	tokenJSON, _ := json.Marshal(token)
 	fmt.Fprintf(w, `
 		<!DOCTYPE html>
@@ -68,20 +66,24 @@ func Callback(w http.ResponseWriter, r *http.Request) {
 	`, token.AccessToken, string(tokenJSON))
 }
 
-func APIToken(w http.ResponseWriter, r *http.Request) {
-	token, err := source.Token()
+func (server *AuthServer) APIToken(w http.ResponseWriter, r *http.Request) {
+	token, err := server.source.Token()
 	if err != nil {
 		w.WriteHeader(http.StatusForbidden)
 		fmt.Fprintln(w, "Could not retrieve token")
 		return
 	}
-	source = config.TokenSource(context.Background(), token)
+	server.source = server.config.TokenSource(context.Background(), token)
 	w.Header().Set("Content-Type", "application/json")
 	tokenResponse := map[string]string{
 		"access_token":  token.AccessToken,
 		"refresh_token": token.RefreshToken,
 	}
 	json.NewEncoder(w).Encode(tokenResponse)
+}
+
+func GetRandomString() string {
+	return uuid.NewString()
 }
 
 func ExitIfError(err error) {
@@ -106,7 +108,8 @@ func main() {
 	clientSecret := os.Getenv("CLIENT_SECRET")
 	err := HasClientCredentials(clientID, clientSecret)
 	ExitIfError(err)
-	config = &oauth2.Config{
+	server := AuthServer{}
+	server.config = &oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		RedirectURL:  "http://localhost:3000/callback",
@@ -119,10 +122,10 @@ func main() {
 		},
 	}
 
-	http.HandleFunc("/", Index)
-	http.HandleFunc("/login", Authorize)
-	http.HandleFunc("/callback", Callback)
-	http.HandleFunc("/api/token", APIToken)
+	http.HandleFunc("/", server.Index)
+	http.HandleFunc("/login", server.Authorize)
+	http.HandleFunc("/callback", server.Callback)
+	http.HandleFunc("/api/token", server.APIToken)
 
 	log.Print("Listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", nil))
