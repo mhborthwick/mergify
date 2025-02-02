@@ -66,9 +66,11 @@ func main() {
 		ExitIfError(err)
 		playlistID, err := s.CreatePlaylist(userID, trackIDs)
 		ExitIfError(err)
-		temp, err := s.AddTracksToPlaylist(playlistID, trackIDs, 100)
-		fmt.Println(temp)
+		_, err = s.AddTracksToPlaylist(playlistID, trackIDs, 100)
 		ExitIfError(err)
+		url := fmt.Sprintf("Created playlist: https://open.spotify.com/playlist/%s", playlistID)
+		text := lipgloss.NewStyle().SetString(url).Bold(true)
+		fmt.Println(text)
 	default:
 		panic(ctx.Command())
 	}
