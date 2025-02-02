@@ -3,13 +3,14 @@ name: Create Release
 on:
   push:
     tags:
-      - "*"
+      - "*" # Trigger on any tag push
 
 jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,28 +18,28 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.23"
+          go-version: "1.23.3"
 
       - name: Build binary (MacOS amd64)
-        run: GOOS=darwin GOARCH=amd64 go build -o bin/mergify-darwin-amd64 ./cmd
+        run: GOOS=darwin GOARCH=amd64 go build -o mergify-darwin-amd64 cmd/mergify.go
 
       - name: Build binary (MacOS arm64)
-        run: GOOS=darwin GOARCH=arm64 go build -o bin/mergify-darwin-arm64 ./cmd
+        run: GOOS=darwin GOARCH=arm64 go build -o mergify-darwin-arm64 cmd/mergify.go
 
       - name: Build binary (Linux)
-        run: GOOS=linux GOARCH=amd64 go build -o bin/mergify-linux-amd64 ./cmd
+        run: GOOS=linux GOARCH=amd64 go build -o mergify-linux-amd64 cmd/mergify.go
 
       - name: Build binary (Windows)
-        run: GOOS=windows GOARCH=amd64 go build -o bin/mergify-windows-amd64.exe ./cmd
+        run: GOOS=windows GOARCH=amd64 go build -o mergify-windows-amd64.exe cmd/mergify.go
 
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: |
-            bin/mergify-darwin-amd64
-            bin/mergify-darwin-arm64
-            bin/mergify-linux-amd64
-            bin/mergify-windows-amd64.exe
+            mergify-darwin-amd64
+            mergify-darwin-arm64
+            mergify-linux-amd64
+            mergify-windows-amd64.exe
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
