@@ -23,10 +23,10 @@ var style = lipgloss.NewStyle().
 var cli CLI
 
 type CLI struct {
-	Token     string   `json:"token"`
-	Playlists []string `json:"playlists"`
+	Token     string   `json:"token" hidden:""`
+	Playlists []string `json:"playlists" hidden:""`
 	Create    struct {
-	} `cmd:"" help:"Create a new playlist."`
+	} `cmd:"" help:"Combines the tracks from the playlists in your CLI config into a new playlist"`
 }
 
 func ExitIfError(err error) {
