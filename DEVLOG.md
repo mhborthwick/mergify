@@ -1,5 +1,9 @@
 # DEVLOG
 
+## 02.01.25
+
+- Release v1.0.0
+
 ## 01.25.25
 
 - Omit duplicate track IDs when creating payload for new playlist
