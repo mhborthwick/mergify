@@ -31,26 +31,14 @@ jobs:
       - name: Build binary (Windows)
         run: GOOS=windows GOARCH=amd64 go build -o bin/mergify-windows-amd64.exe ./cmd
 
-      - name: Compress binary (MacOS amd64)
-        run: tar -czvf bin/mergify-darwin-amd64.tar.gz bin/mergify-darwin-amd64
-
-      - name: Compress binary (MacOS arm64)
-        run: tar -czvf bin/mergify-darwin-arm64.tar.gz bin/mergify-darwin-arm64
-
-      - name: Compress binary (Linux)
-        run: tar -czvf bin/mergify-linux-amd64.tar.gz bin/mergify-linux-amd64
-
-      - name: Compress binary (Windows)
-        run: zip bin/mergify-windows-amd64.zip bin/mergify-windows-amd64.exe
-
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: |
-            bin/mergify-darwin-amd64.tar.gz
-            bin/mergify-darwin-arm64.tar.gz
-            bin/mergify-linux-amd64.tar.gz
-            bin/mergify-windows-amd64.zip
+            bin/mergify-darwin-amd64
+            bin/mergify-darwin-arm64
+            bin/mergify-linux-amd64
+            bin/mergify-windows-amd64.exe
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
