@@ -32,11 +32,24 @@ chmod +x mergify
 sudo mv mergify /usr/local/bin/
 ```
 
+## Usage
+
+```sh
+Usage: mergify <command> [flags]
+
+Flags:
+  -h, --help    Show context-sensitive help.
+
+Commands:
+  create [flags]
+    Combines the tracks from the playlists in your CLI config into a new playlist
+
+Run "mergify <command> --help" for more information on a command.
+```
+
+> Note: Before using Mergify, make sure to obtain an access token (required to access your Spotify account) and set up your CLI config using the steps below.
+
 ## Setup
-
-### Overview
-
-Before using the Mergify CLI, ensure you've obtained an access token (required to access your Spotify account) and set up your Mergify config file using the steps below.
 
 ### Step 1: Obtain an Access Token
 
@@ -146,13 +159,3 @@ Copy your access token and set it as the value of `"token"` in your `~/.mergify/
 ```
 
 > Note: If your token ever expires, replace it with a fresh one.
-
-## Usage
-
-### Create
-
-The `create` command combines the tracks from the playlists defined in your Mergify config into a new playlist.
-
-```sh
-mergify create
-```
