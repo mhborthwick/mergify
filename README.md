@@ -16,7 +16,23 @@ Mergify is a CLI (command-line interface) that allows you to merge your Spotify 
 
 - Docker
 
-<!-- ## Install -->
+## Install
+
+```sh
+export ARCH="darwin-arm64"
+
+# export ARCH="darwin-amd64"
+
+# export ARCH="linux-amd64"
+
+# export ARCH="windows-amd64"
+
+curl -o mergify -L "https://github.com/mhborthwick/mergify/releases/latest/download/mergify-${ARCH}"
+
+chmod +x mergify
+
+sudo mv mergify /usr/local/bin/
+```
 
 ## Setup
 
@@ -41,15 +57,15 @@ You will need to create a Spotify app to obtain your client ID and secret for au
 Clone this repo:
 
 ```sh
-$ git clone git@github.com:mhborthwick/mergify.git
+git clone git@github.com:mhborthwick/mergify.git
 ```
 
 Go to the `auth` directory and create a `.env` file:
 
 ```sh
-$ cd mergify/auth
+cd mergify/auth
 
-$ touch .env
+touch .env
 ```
 
 Add your client ID and secret to `.env`:
@@ -62,15 +78,15 @@ CLIENT_SECRET=<replace_with_your_client_secret>
 Now, start the auth server using Docker Compose:
 
 ```sh
-$ make auth-up
+make auth-up
 ```
 
 Alternatively, run the following commands:
 
 ```sh
-$ cd mergify/auth
+cd mergify/auth
 
-$ docker compose up
+docker compose up
 ```
 
 #### 1.3 Generate an Access Token
@@ -96,7 +112,7 @@ The auth server runs at `http://localhost:3000`.
 Add a `~/.mergify/config.json` file:
 
 ```sh
-$ touch ~/.mergify/config.json
+touch ~/.mergify/config.json
 ```
 
 #### 2.2 Add Your Playlists
@@ -140,5 +156,5 @@ Copy your access token and set it as the value of `"token"` in your `~/.mergify/
 The `create` command combines the tracks from the playlists defined in your Mergify config into a new playlist.
 
 ```sh
-$ mergify create
+mergify create
 ```
