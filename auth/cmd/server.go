@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -15,12 +16,15 @@ import (
 )
 
 type AuthServer struct {
-	AccessToken string
-	// RefreshToken string
+	// accessToken string
+	// refreshToken string
+	client *http.Client
 	source oauth2.TokenSource
 	config *oauth2.Config
 	state  string
 }
+
+const API = "https://api.spotify.com/v1"
 
 func (server *AuthServer) Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "<a href='/login'>Login to Spotify</a>")
@@ -82,6 +86,34 @@ func (server *AuthServer) APIToken(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tokenResponse)
 }
 
+func (server *AuthServer) Me(w http.ResponseWriter, r *http.Request) {
+	if server.client == nil {
+		server.client = &http.Client{}
+	}
+	token, err := server.source.Token()
+	if err != nil {
+		http.Error(w, "Could not retrieve token", http.StatusForbidden)
+		return
+	}
+	req, err := http.NewRequest("GET", API+"/me", nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	resp, err := server.client.Do(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(resp.StatusCode)
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func GetRandomString() string {
 	return uuid.NewString()
 }
@@ -126,6 +158,8 @@ func main() {
 	http.HandleFunc("/login", server.Authorize)
 	http.HandleFunc("/callback", server.Callback)
 	http.HandleFunc("/api/token", server.APIToken)
+
+	http.HandleFunc("/me", server.Me)
 
 	log.Print("Listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", nil))

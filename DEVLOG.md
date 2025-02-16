@@ -1,5 +1,9 @@
 # DEVLOG
 
+## 02.16.25
+
+- Update GetUserID to use auth proxy
+
 ## 02.01.25
 
 - Release v1.0.0

@@ -52,17 +52,28 @@ type CreatePlaylistResponse struct {
 }
 
 const API = "https://api.spotify.com/v1"
+const PROXY = "http://localhost:3000"
 
-func (s *Spotify) handleRequest(method, endpoint string, body io.Reader) ([]byte, error) {
+func (s *Spotify) handleRequest(
+	api,
+	method,
+	endpoint string,
+	body io.Reader,
+) ([]byte, error) {
 	if s.Client == nil {
 		s.Client = &http.Client{}
 	}
-	url := API + endpoint
+	url := api + endpoint
+	// fmt.Println(url)
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", s.Token))
+	// TODO: remove once fully
+	// migrated over to proxy
+	if api == API {
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", s.Token))
+	}
 	resp, err := s.Client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
@@ -82,7 +93,7 @@ func (s *Spotify) handleRequest(method, endpoint string, body io.Reader) ([]byte
 }
 
 func (s *Spotify) getProfile() (*Profile, error) {
-	body, err := s.handleRequest("GET", "/me", nil)
+	body, err := s.handleRequest(PROXY, "GET", "/me", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +120,7 @@ func (s *Spotify) getPlaylists(userID string) ([]Playlist, error) {
 		to add logic to be able to retrieve playlists in multiple cycles.
 	*/
 	for {
-		body, err := s.handleRequest("GET", endpoint, nil)
+		body, err := s.handleRequest(API, "GET", endpoint, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -181,7 +192,7 @@ func (s *Spotify) getTracksFromPlaylist(playlistID string) ([]PlaylistTrack, err
 		that can handle playlists with more than 20 tracks.
 	*/
 	for {
-		body, err := s.handleRequest("GET", endpoint, nil)
+		body, err := s.handleRequest(API, "GET", endpoint, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -219,7 +230,7 @@ func (s *Spotify) CreatePlaylist(userID string, trackIDs []string) (string, erro
 		return "", err
 	}
 	endpoint := fmt.Sprintf("/users/%s/playlists", userID)
-	body, err := s.handleRequest("POST", endpoint, bytes.NewBuffer(jsonRequestBody))
+	body, err := s.handleRequest(API, "POST", endpoint, bytes.NewBuffer(jsonRequestBody))
 	if err != nil {
 		return "", err
 	}
@@ -257,7 +268,7 @@ func (s *Spotify) AddTracksToPlaylist(
 			return "", err
 		}
 		endpoint := fmt.Sprintf("/playlists/%s/tracks", playlistID)
-		body, err := s.handleRequest("POST", endpoint, bytes.NewBuffer(jsonRequestBody))
+		body, err := s.handleRequest(API, "POST", endpoint, bytes.NewBuffer(jsonRequestBody))
 		if err != nil {
 			return "", fmt.Errorf("failed to add tracks to playlist: %w", err)
 		}
