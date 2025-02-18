@@ -7,4 +7,4 @@ require (
 	golang.org/x/oauth2 v0.24.0
 )
 
-require github.com/gorilla/mux v1.8.1 // indirect
+require github.com/gorilla/mux v1.8.1
