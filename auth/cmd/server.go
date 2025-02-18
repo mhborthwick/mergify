@@ -11,6 +11,7 @@ import (
 	"os"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/spotify"
 )
@@ -114,6 +115,35 @@ func (server *AuthServer) Me(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (server *AuthServer) GetPlaylistIDs(w http.ResponseWriter, r *http.Request) {
+	if server.client == nil {
+		server.client = &http.Client{}
+	}
+	token, err := server.source.Token()
+	if err != nil {
+		http.Error(w, "Could not retrieve token", http.StatusForbidden)
+		return
+	}
+	endpoint := r.URL.RequestURI()
+	req, err := http.NewRequest("GET", API+endpoint, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	resp, err := server.client.Do(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(resp.StatusCode)
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func GetRandomString() string {
 	return uuid.NewString()
 }
@@ -154,13 +184,16 @@ func main() {
 		},
 	}
 
-	http.HandleFunc("/", server.Index)
-	http.HandleFunc("/login", server.Authorize)
-	http.HandleFunc("/callback", server.Callback)
-	http.HandleFunc("/api/token", server.APIToken)
+	r := mux.NewRouter()
 
-	http.HandleFunc("/me", server.Me)
+	r.HandleFunc("/", server.Index)
+	r.HandleFunc("/login", server.Authorize)
+	r.HandleFunc("/callback", server.Callback)
+	r.HandleFunc("/api/token", server.APIToken)
+
+	r.HandleFunc("/me", server.Me)
+	r.HandleFunc("/users/{user}/playlists", server.GetPlaylistIDs)
 
 	log.Print("Listening on http://localhost:3000")
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	log.Fatal(http.ListenAndServe(":3000", r))
 }

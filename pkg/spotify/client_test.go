@@ -69,7 +69,7 @@ func TestGetPlaylists(t *testing.T) {
 		mockClient := &http.Client{
 			Transport: &mockRoundTripper{
 				roundTripFunc: func(req *http.Request) (*http.Response, error) {
-					if req.URL.String() == "https://api.spotify.com/v1/users/user/playlists" {
+					if req.URL.String() == "http://localhost:3000/users/user/playlists" {
 						return &http.Response{
 							StatusCode: http.StatusOK,
 							Body:       io.NopCloser(strings.NewReader(`{"items": [{"id": "123", "name": "foo"}, {"id": "456", "name": "bar"}], "next": "https://api.spotify.com/v1/users/user/playlists?offset=20"}`)),

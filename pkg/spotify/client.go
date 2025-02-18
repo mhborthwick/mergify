@@ -120,7 +120,7 @@ func (s *Spotify) getPlaylists(userID string) ([]Playlist, error) {
 		to add logic to be able to retrieve playlists in multiple cycles.
 	*/
 	for {
-		body, err := s.handleRequest(API, "GET", endpoint, nil)
+		body, err := s.handleRequest(PROXY, "GET", endpoint, nil)
 		if err != nil {
 			return nil, err
 		}

@@ -1,5 +1,9 @@
 # DEVLOG
 
+## 02.18.25
+
+- Update GetPlaylistIDsByName to use auth proxy
+
 ## 02.16.25
 
 - Update GetUserID to use auth proxy
