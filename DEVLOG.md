@@ -2,6 +2,7 @@
 
 ## 02.18.25
 
+- Update GetPlaylistTrackIDs to use auth proxy
 - Update GetPlaylistIDsByName to use auth proxy
 
 ## 02.16.25

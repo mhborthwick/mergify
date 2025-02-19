@@ -134,7 +134,7 @@ func TestGetTracksFromPlaylist(t *testing.T) {
 		mockClient := &http.Client{
 			Transport: &mockRoundTripper{
 				roundTripFunc: func(req *http.Request) (*http.Response, error) {
-					if req.URL.String() == "https://api.spotify.com/v1/playlists/mockPlaylistID/tracks" {
+					if req.URL.String() == "http://localhost:3000/playlists/mockPlaylistID/tracks" {
 						return &http.Response{
 							StatusCode: http.StatusOK,
 							Body:       io.NopCloser(strings.NewReader(`{"items": [{"track": {"uri": "123"}}, {"track": {"uri": "456"}}], "next": "https://api.spotify.com/v1/users/user/playlists?offset=20"}`)),

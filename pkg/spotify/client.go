@@ -192,7 +192,7 @@ func (s *Spotify) getTracksFromPlaylist(playlistID string) ([]PlaylistTrack, err
 		that can handle playlists with more than 20 tracks.
 	*/
 	for {
-		body, err := s.handleRequest(API, "GET", endpoint, nil)
+		body, err := s.handleRequest(PROXY, "GET", endpoint, nil)
 		if err != nil {
 			return nil, err
 		}
