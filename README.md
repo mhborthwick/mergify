@@ -2,7 +2,7 @@
 
 ## Intro
 
-Mergify is a CLI (command-line interface) that allows you to merge your Spotify playlists.
+A CLI (command-line interface) to merge your Spotify playlists.
 
 ## Example Playlists
 
@@ -12,18 +12,16 @@ Mergify is a CLI (command-line interface) that allows you to merge your Spotify 
 
 ## Requirements
 
-- Git
-
-- Docker
+- Docker (required for running the auth proxy server)
 
 ## Install
 
 ```sh
-export ARCH="darwin-arm64"
+export ARCH="darwin-arm64" # macOS (Apple Silicon)
 
-# export ARCH="darwin-amd64"
+# export ARCH="darwin-amd64" # macOS (Intel)
 
-# export ARCH="linux-amd64"
+# export ARCH="linux-amd64" # Linux (x86_64)
 
 curl -o mergify -L "https://github.com/mhborthwick/mergify/releases/latest/download/mergify-${ARCH}"
 
@@ -47,11 +45,9 @@ Commands:
 Run "mergify <command> --help" for more information on a command.
 ```
 
-> Note: Before using Mergify, make sure to obtain an access token (required to access your Spotify account) and set up your CLI config using the steps below.
-
 ## Setup
 
-### Step 1: Obtain an Access Token
+### Step 1: Authenticate with Spotify
 
 #### 1.1 Create a Spotify App
 
@@ -63,7 +59,7 @@ You will need to create a Spotify app to obtain your client ID and secret for au
 
 - In the app settings, add http://localhost:3000/callback to the `Redirect URIs` field
 
-#### 1.2 Start the Authentication Server
+#### 1.2 Start the Auth Proxy Server
 
 Clone this repo:
 
@@ -86,7 +82,7 @@ CLIENT_ID=<replace_with_your_client_id>
 CLIENT_SECRET=<replace_with_your_client_secret>
 ```
 
-Now, start the auth server using Docker Compose:
+Now, start the auth proxy server using Docker Compose:
 
 ```sh
 make auth-up
@@ -110,12 +106,6 @@ The auth server runs at `http://localhost:3000`.
 
 1. Log in to your Spotify account and grant access, if prompted.
 
-1. You’ll be redirected to a page displaying your access token.
-
-1. Click `Copy Access Token` to save it to your clipboard (You'll use this in **Step 2: Set Up Your Mergify Config File** below).
-
-> Note: Your token expires after ~30 minutes. Revisit `http://localhost:3000` to regenerate it if needed.
-
 ### Step 2: Set Up Your Mergify Config File
 
 #### 2.1 Create Your Config File
@@ -126,7 +116,7 @@ Add a `~/.mergify/config.json` file:
 touch ~/.mergify/config.json
 ```
 
-#### 2.2 Add Your Playlists
+#### 2.2 Define Your Playlists
 
 Define the playlists that you want to merge as an array:
 
@@ -142,20 +132,3 @@ Define the playlists that you want to merge as an array:
   ]
 }
 ```
-
-> Note: Ensure the names match exactly as they appear in your Spotify account.
-
-#### 2.3 Add Your Access Token
-
-Copy your access token and set it as the value of `"token"` in your `~/.mergify/config.json` file:
-
-```jsonc
-{
-  "token": "<replace_with_your_token>",
-  "playlists": [
-    // ...
-  ]
-}
-```
-
-> Note: If your token ever expires, replace it with a fresh one.
