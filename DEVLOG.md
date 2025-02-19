@@ -2,6 +2,7 @@
 
 ## 02.18.25
 
+- Update AddTracksToPlaylist to use auth proxy
 - Update CreatePlaylist to use auth proxy
 - Update GetPlaylistTrackIDs to use auth proxy
 - Update GetPlaylistIDsByName to use auth proxy

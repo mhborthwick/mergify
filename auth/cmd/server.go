@@ -187,6 +187,15 @@ func (server *AuthServer) getPlaylists(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server *AuthServer) Tracks(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		server.getTracks(w, r)
+	}
+	if r.Method == "POST" {
+		server.addTracks(w, r)
+	}
+}
+
+func (server *AuthServer) getTracks(w http.ResponseWriter, r *http.Request) {
 	if server.client == nil {
 		server.client = &http.Client{}
 	}
@@ -197,6 +206,35 @@ func (server *AuthServer) Tracks(w http.ResponseWriter, r *http.Request) {
 	}
 	endpoint := r.URL.RequestURI()
 	req, err := http.NewRequest("GET", API+endpoint, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	resp, err := server.client.Do(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(resp.StatusCode)
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (server *AuthServer) addTracks(w http.ResponseWriter, r *http.Request) {
+	if server.client == nil {
+		server.client = &http.Client{}
+	}
+	token, err := server.source.Token()
+	if err != nil {
+		http.Error(w, "Could not retrieve token", http.StatusForbidden)
+		return
+	}
+	endpoint := r.URL.RequestURI()
+	req, err := http.NewRequest("POST", API+endpoint, r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

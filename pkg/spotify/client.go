@@ -268,7 +268,7 @@ func (s *Spotify) AddTracksToPlaylist(
 			return "", err
 		}
 		endpoint := fmt.Sprintf("/playlists/%s/tracks", playlistID)
-		body, err := s.handleRequest(API, "POST", endpoint, bytes.NewBuffer(jsonRequestBody))
+		body, err := s.handleRequest(PROXY, "POST", endpoint, bytes.NewBuffer(jsonRequestBody))
 		if err != nil {
 			return "", fmt.Errorf("failed to add tracks to playlist: %w", err)
 		}
