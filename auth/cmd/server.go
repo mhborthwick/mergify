@@ -27,6 +27,8 @@ type AuthServer struct {
 
 const API = "https://api.spotify.com/v1"
 
+// ### oAuth ###
+
 func (server *AuthServer) Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "<a href='/login'>Login to Spotify</a>")
 }
@@ -87,6 +89,8 @@ func (server *AuthServer) APIToken(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tokenResponse)
 }
 
+// ### Routes ###
+
 func (server *AuthServer) Me(w http.ResponseWriter, r *http.Request) {
 	if server.client == nil {
 		server.client = &http.Client{}
@@ -115,7 +119,45 @@ func (server *AuthServer) Me(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (server *AuthServer) GetPlaylists(w http.ResponseWriter, r *http.Request) {
+func (server *AuthServer) Playlists(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		server.getPlaylists(w, r)
+	}
+	if r.Method == "POST" {
+		server.createPlaylist(w, r)
+	}
+}
+
+func (server *AuthServer) createPlaylist(w http.ResponseWriter, r *http.Request) {
+	if server.client == nil {
+		server.client = &http.Client{}
+	}
+	token, err := server.source.Token()
+	if err != nil {
+		http.Error(w, "Could not retrieve token", http.StatusForbidden)
+		return
+	}
+	endpoint := r.URL.RequestURI()
+	req, err := http.NewRequest("POST", API+endpoint, r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	resp, err := server.client.Do(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(resp.StatusCode)
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (server *AuthServer) getPlaylists(w http.ResponseWriter, r *http.Request) {
 	if server.client == nil {
 		server.client = &http.Client{}
 	}
@@ -144,7 +186,7 @@ func (server *AuthServer) GetPlaylists(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (server *AuthServer) GetTracks(w http.ResponseWriter, r *http.Request) {
+func (server *AuthServer) Tracks(w http.ResponseWriter, r *http.Request) {
 	if server.client == nil {
 		server.client = &http.Client{}
 	}
@@ -172,6 +214,8 @@ func (server *AuthServer) GetTracks(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
+
+// ## Utils ##
 
 func GetRandomString() string {
 	return uuid.NewString()
@@ -221,8 +265,8 @@ func main() {
 	r.HandleFunc("/api/token", server.APIToken)
 
 	r.HandleFunc("/me", server.Me)
-	r.HandleFunc("/users/{user}/playlists", server.GetPlaylists)
-	r.HandleFunc("/playlists/{playlist}/tracks", server.GetTracks)
+	r.HandleFunc("/users/{user}/playlists", server.Playlists)
+	r.HandleFunc("/playlists/{playlist}/tracks", server.Tracks)
 
 	log.Print("Listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", r))

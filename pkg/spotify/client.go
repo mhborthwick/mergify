@@ -230,7 +230,7 @@ func (s *Spotify) CreatePlaylist(userID string, trackIDs []string) (string, erro
 		return "", err
 	}
 	endpoint := fmt.Sprintf("/users/%s/playlists", userID)
-	body, err := s.handleRequest(API, "POST", endpoint, bytes.NewBuffer(jsonRequestBody))
+	body, err := s.handleRequest(PROXY, "POST", endpoint, bytes.NewBuffer(jsonRequestBody))
 	if err != nil {
 		return "", err
 	}
