@@ -12,7 +12,7 @@ A CLI (command-line interface) to merge your Spotify playlists.
 
 ## Requirements
 
-- Docker (required for running the auth proxy server)
+- Docker (recommended for running the auth proxy server)
 
 ## Install
 
@@ -43,6 +43,15 @@ Commands:
     Combines the tracks from the playlists in your CLI config into a new playlist
 
 Run "mergify <command> --help" for more information on a command.
+```
+
+## Flow Chart
+
+```mermaid
+flowchart TD
+    A["📄 ~/.mergify/config.json"] -->|Reads Config| B["💻 Mergify CLI"]
+    B -->|Requests Token| C["🔒 Auth Proxy Server"]
+    C -->|Creates Playlist| D["🎵 Spotify Web API"]
 ```
 
 ## Setup
