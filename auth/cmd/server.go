@@ -17,8 +17,6 @@ import (
 )
 
 type AuthServer struct {
-	// accessToken string
-	// refreshToken string
 	client *http.Client
 	source oauth2.TokenSource
 	config *oauth2.Config
@@ -27,10 +25,8 @@ type AuthServer struct {
 
 const API = "https://api.spotify.com/v1"
 
-// ### oAuth ###
-
 func (server *AuthServer) Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "<a href='/login'>Login to Spotify</a>")
+	fmt.Fprint(w, "<a href='/login'>Login with Spotify</a>")
 }
 
 func (server *AuthServer) Authorize(w http.ResponseWriter, r *http.Request) {
@@ -55,22 +51,14 @@ func (server *AuthServer) Callback(w http.ResponseWriter, r *http.Request) {
 		<!DOCTYPE html>
 		<html>
 		<head>
-			<script>
-				const accessToken = "%s";
-				function copyToClipboard() {
-					navigator.clipboard.writeText(accessToken)
-						.catch(err => alert("Failed to copy token: " + err));
-				}
-			</script>
 		</head>
 		<body>
 			<div>
 				<pre>"%s"</pre>
-				<button onclick="copyToClipboard()">Copy Access Token</button>
 			</div>
 		</body>
 		</html>
-	`, token.AccessToken, string(tokenJSON))
+	`, string(tokenJSON))
 }
 
 func (server *AuthServer) APIToken(w http.ResponseWriter, r *http.Request) {
@@ -88,8 +76,6 @@ func (server *AuthServer) APIToken(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(tokenResponse)
 }
-
-// ### Routes ###
 
 func (server *AuthServer) Me(w http.ResponseWriter, r *http.Request) {
 	if server.client == nil {
@@ -252,8 +238,6 @@ func (server *AuthServer) addTracks(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
-
-// ## Utils ##
 
 func GetRandomString() string {
 	return uuid.NewString()
