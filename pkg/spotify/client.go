@@ -69,11 +69,6 @@ func (s *Spotify) handleRequest(
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	// TODO: remove once fully
-	// migrated over to proxy
-	if api == API {
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", s.Token))
-	}
 	resp, err := s.Client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
