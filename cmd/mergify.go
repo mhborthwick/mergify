@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -36,13 +35,6 @@ func ExitIfError(err error) {
 	}
 }
 
-func (cli *CLI) HasToken() error {
-	if cli.Token == "" {
-		return errors.New("token is required")
-	}
-	return nil
-}
-
 func main() {
 	homeDir, err := os.UserHomeDir()
 	ExitIfError(err)
@@ -50,8 +42,6 @@ func main() {
 	_, err = os.Stat(pathToConfig)
 	ExitIfError(err)
 	ctx := kong.Parse(&cli, kong.Configuration(kong.JSON, pathToConfig))
-	err = cli.HasToken()
-	ExitIfError(err)
 	switch ctx.Command() {
 	case "create":
 		fmt.Println(style.Render("Mergify!"))
