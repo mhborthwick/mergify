@@ -6,9 +6,9 @@ A CLI (command-line interface) to merge your Spotify playlists.
 
 ## Example Playlists
 
-| Name                           | User              | Description                                                              | Link                                                                        |
-| ------------------------------ | ----------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| Mike's Monthly Playlists (All) | Mike H. Borthwick | A compilation of Mike's 100+ Monthly Playlists (Last Updated: Feb 2025). | [Open on Spotify](https://open.spotify.com/playlist/2pyrktawyLSFKVIYd01cjP) |
+| Name                     | User              | Description                                                              | Link                                                                        |
+| ------------------------ | ----------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| Mike's Monthly Playlists | Mike H. Borthwick | A compilation of Mike's 100+ Monthly Playlists (Last Updated: Feb 2025). | [Open on Spotify](https://open.spotify.com/playlist/2pyrktawyLSFKVIYd01cjP) |
 
 ## Requirements
 
