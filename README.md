@@ -2,7 +2,7 @@
 
 ## Intro
 
-A CLI (command-line interface) to merge your Spotify playlists.
+A CLI to merge your Spotify playlists.
 
 ## Example Playlists
 
